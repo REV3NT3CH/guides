@@ -14,7 +14,7 @@ ro.build.host=phantom
 ro.build.tags=release-keys
 ro.product.model=LG-LS980
 ro.product.brand=lge
-ro.product.name=spr_us
+ro.product.name=g2_open_com
 ro.product.device=g2
 ro.product.board=MSM8974
 ro.product.cpu.abi=armeabi-v7a
@@ -49,7 +49,7 @@ persist.rild.nitz_short_ons_3=
 ril.subscription.types=NV,RUIM
 DEVICE_PROVISIONED=1
 # Start in GWL mode
-#ro.telephony.default_network=9
+#ro.telephony.default_network=10
 
 debug.sf.hw=1
 debug.egl.hw=1
@@ -227,8 +227,8 @@ ro.fm.module=BCM
 #
 # ADDITIONAL_BUILD_PROPERTIES
 #
-ro.build.target_operator=SPR
-ro.build.target_country=US
+ro.build.target_operator=OPEN
+ro.build.target_country=COM
 ro.afwdata.LGfeatureset=OPENBASE
 ro.lge.swversion=CloudyFlex 2.6
 ro.lge.swversion_short=V20a
@@ -324,7 +324,7 @@ ro.lge.capp_almond=true
 ro.lge.qslide.max_window=8
 ro.lge.capp_slideAside=true
 ro.lge.capp_patch_lockscreen=false
-ro.telephony.default_network=9
+ro.telephony.default_network=10
 persist.sys.emmc_size=0
 persist.sys.dalvik.vm.lib=libdvm.so
 net.bt.name=Android
