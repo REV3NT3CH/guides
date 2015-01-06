@@ -53,15 +53,15 @@ static struct hw_module_methods_t camera_module_methods = {
 
 camera_module_t HAL_MODULE_INFO_SYM = {
     .common = {
-         tag: HARDWARE_MODULE_TAG,
-         .module_api_version = CAMERA_MODULE_API_VERSION_1_0,
-         .hal_api_version = HARDWARE_HAL_API_VERSION,
-         .id = CAMERA_HARDWARE_MODULE_ID,
-         .name = "Samsung msm8960 Camera Wrapper",
-         .author = "The CyanogenMod Project",
-         .methods = &camera_module_methods,
-         .dso = NULL, /* remove compilation warnings */
-         .reserved = {0}, /* remove compilation warnings */
+        tag: HARDWARE_MODULE_TAG,
+        .module_api_version = CAMERA_MODULE_API_VERSION_1_0,
+        .hal_api_version = HARDWARE_HAL_API_VERSION,
+        .id = CAMERA_HARDWARE_MODULE_ID,
+        .name = "ApexQ Camera Wrapper",
+        .author = "TeamApexQ",
+        .methods = &camera_module_methods,
+        .dso = NULL, /* remove compilation warnings */
+        .reserved = {0}, /* remove compilation warnings */
     },
     .get_number_of_cameras = camera_get_number_of_cameras,
     .get_camera_info = camera_get_camera_info,
@@ -101,6 +101,9 @@ static int check_vendor_module()
 }
 
 const static char * iso_values[] = {"auto,"
+#ifdef ISO_MODE_HJR
+"ISO_HJR,"
+#endif
 "ISO100,ISO200,ISO400,ISO800"
 #ifdef ISO_MODE_1600
 ",ISO1600"
@@ -113,28 +116,35 @@ static char * camera_fixup_getparams(int id, const char * settings)
     params.unflatten(android::String8(settings));
 
     // fix params here
+#ifdef QCOM_HARDWARE
     params.set(android::CameraParameters::KEY_SUPPORTED_ISO_MODES, iso_values[id]);
-
-#ifdef EXPOSURE_HACK
-    params.set(android::CameraParameters::KEY_EXPOSURE_COMPENSATION_STEP, "0.5");
-    params.set(android::CameraParameters::KEY_MIN_EXPOSURE_COMPENSATION, "-4");
-    params.set(android::CameraParameters::KEY_MAX_EXPOSURE_COMPENSATION, "4");
 #endif
-
 #ifdef PREVIEW_SIZE_FIXUP
-    params.set(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO, id ? "640x480" : "800x480");
+    params.remove(android::CameraParameters::KEY_SUPPORTED_VIDEO_SIZES);
+    params.remove(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO);
+    if(id == 0) {
+        params.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_SIZES, "1280x720,800x480,720x480,640x480,320x240,176x144");
+        params.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,infinity,macro,fixed");
+        params.set(android::CameraParameters::KEY_SUPPORTED_SELECTABLE_ZONE_AF, "auto,spot-metering,center-weighted,frame-average");
+        params.set(android::CameraParameters::KEY_SUPPORTED_TOUCH_AF_AEC, "touch-off,touch-on");
+    } else {
+        params.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_SIZES, "640x480,320x240,176x144");
+        params.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "infinity");
+        params.set(android::CameraParameters::KEY_SUPPORTED_SELECTABLE_ZONE_AF, "");
+        params.set(android::CameraParameters::KEY_SUPPORTED_TOUCH_AF_AEC, "");
+        }
 #endif
 
+#ifdef DISABLE_FACE_DETECTION
 #ifndef DISABLE_FACE_DETECTION_BOTH_CAMERAS
     /* Disable face detection for front facing camera */
     if(id == 1) {
 #endif
         params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_HW, "0");
         params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_SW, "0");
-        params.set(android::CameraParameters::KEY_FACE_DETECTION, "off");
-        params.set(android::CameraParameters::KEY_SUPPORTED_FACE_DETECTION, "off");
 #ifndef DISABLE_FACE_DETECTION_BOTH_CAMERAS
     }
+#endif
 #endif
 
     android::String8 strParams = params.flatten();
@@ -144,8 +154,6 @@ static char * camera_fixup_getparams(int id, const char * settings)
     return ret;
 }
 
-static bool wasVideo = false;
-
 char * camera_fixup_setparams(struct camera_device * device, const char * settings)
 {
     int id = CAMERA_ID(device);
@@ -153,16 +161,11 @@ char * camera_fixup_setparams(struct camera_device * device, const char * settin
     params.unflatten(android::String8(settings));
     const char* camMode = params.get(android::CameraParameters::KEY_SAMSUNG_CAMERA_MODE);
 
-    bool enableZSL = !strcmp(params.get(android::CameraParameters::KEY_ZSL), "on");
-
-    // jactive device camera don't seem to have recording hint param, so read it safely
-    const char* recordingHint = params.get(android::CameraParameters::KEY_RECORDING_HINT);
-    bool isVideo = false;
-    if (recordingHint)
-        isVideo = !strcmp(recordingHint, "true");
+    bool isVideo = !strcmp(params.get(android::CameraParameters::KEY_RECORDING_HINT), "true");
 
     // fix params here
     // No need to fix-up ISO_HJR, it is the same for userspace and the camera lib
+#ifdef QCOM_HARDWARE
     if(params.get("iso")) {
         const char* isoMode = params.get(android::CameraParameters::KEY_ISO_MODE);
         if(strcmp(isoMode, "ISO100") == 0)
@@ -175,49 +178,48 @@ char * camera_fixup_setparams(struct camera_device * device, const char * settin
             params.set(android::CameraParameters::KEY_ISO_MODE, "800");
         else if(strcmp(isoMode, "ISO1600") == 0)
             params.set(android::CameraParameters::KEY_ISO_MODE, "1600");
-        else if(strcmp(isoMode, "ISO50") == 0)
-            params.set(android::CameraParameters::KEY_ISO_MODE, "50");
     }
+#endif
 
+#ifdef PREVIEW_SIZE_FIXUP
+    params.remove(android::CameraParameters::KEY_SUPPORTED_VIDEO_SIZES);
+    params.remove(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO);
+    if(id == 0) {
+        params.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_SIZES, "1280x720,800x480,720x480,640x480,320x240,176x144");
+        params.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,infinity,macro,fixed");
+        params.set(android::CameraParameters::KEY_SUPPORTED_SELECTABLE_ZONE_AF, "auto,spot-metering,center-weighted,frame-average");
+        params.set(android::CameraParameters::KEY_SUPPORTED_TOUCH_AF_AEC, "touch-off,touch-on");
+    } else {
+        params.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_SIZES, "640x480,320x240,176x144");
+        params.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "infinity");
+        params.set(android::CameraParameters::KEY_SUPPORTED_SELECTABLE_ZONE_AF, "");
+        params.set(android::CameraParameters::KEY_SUPPORTED_TOUCH_AF_AEC, "");
+        }
+#endif
+
+#ifdef DISABLE_FACE_DETECTION
 #ifndef DISABLE_FACE_DETECTION_BOTH_CAMERAS
     /* Disable face detection for front facing camera */
     if(id == 1) {
 #endif
         params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_HW, "0");
         params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_SW, "0");
-        params.set(android::CameraParameters::KEY_FACE_DETECTION, "off");
-        params.set(android::CameraParameters::KEY_SUPPORTED_FACE_DETECTION, "off");
 #ifndef DISABLE_FACE_DETECTION_BOTH_CAMERAS
     }
 #endif
+#endif
 
-#ifdef SAMSUNG_CAMERA_MODE
     /* Samsung camcorder mode */
-    if (id == 1) {
-    /* Enable for front camera only */
-        if (!(!strcmp(camMode, "1") && !isVideo) || wasVideo) {
-        /* Enable only if not already set (Snapchat) but do enable if the setting is left
-        over while switching from stills to video */
-            if ((!strcmp(params.get(android::CameraParameters::KEY_PREVIEW_FRAME_RATE), "15") ||
-               (!strcmp(params.get(android::CameraParameters::KEY_PREVIEW_SIZE), "320x240") &&
-               !strcmp(params.get(android::CameraParameters::KEY_JPEG_QUALITY), "96"))) && !isVideo) {
-                /* Do not set for video chat in Hangouts (Frame rate 15) or Skype (Preview size 320x240
-                and jpeg quality 96 */
-            } else {
-            /* "Normal case". Required to prevent distorted video and reboots while taking snaps */
-            params.set(android::CameraParameters::KEY_SAMSUNG_CAMERA_MODE, isVideo ? "1" : "0");
-            }
-            wasVideo = (isVideo || wasVideo);
-        }
-    } else {
-    wasVideo = false;
+//    params.set(KEY_SAMSUNG_CAMERA_MODE, isVideo ? "1" : "0");
+#ifdef ENABLE_ZSL
+    params.set(android::CameraParameters::KEY_ZSL, isVideo ? "off" : "on");
+    params.set(android::CameraParameters::KEY_CAMERA_MODE, isVideo ? "0" : "1");
+#ifdef MAGIC_ZSL_1508
+    if (!isVideo) {
+        camera_send_command(device, 1508, 0, 0);
     }
 #endif
-#ifdef ENABLE_ZSL
-        params.set(android::CameraParameters::KEY_ZSL, isVideo ? "off" : "on");
-        params.set(android::CameraParameters::KEY_CAMERA_MODE, isVideo ? "0" : "1");
 #endif
-
     android::String8 strParams = params.flatten();
 
     if (fixed_set_params[id])
@@ -397,23 +399,19 @@ int camera_auto_focus(struct camera_device * device)
 
 int camera_cancel_auto_focus(struct camera_device * device)
 {
-    int ret = 0;
-
     ALOGV("%s", __FUNCTION__);
     ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
 
     if(!device)
         return -EINVAL;
 
-    /* APEXQ/EXPRESS: Calling cancel_auto_focus causes the camera to crash for unknown reasons.
-     * Disabling it has no adverse effect. For others, only call cancel_auto_focus when the
-     * preview is enabled. This is needed so some 3rd party camera apps don't lock up. */
-#ifndef DISABLE_AUTOFOCUS
-    if (camera_preview_enabled(device))
-        ret = VENDOR_CALL(device, cancel_auto_focus);
+    /* APEXQ/D2/EXPRESS: Calling cancel_auto_focus causes the camera to crash for unknown reasons. Disabling
+     * it has no adverse effect. Return 0 */
+#ifdef DISABLE_AUTOFOCUS
+    return 0;
+#else
+    return VENDOR_CALL(device, cancel_auto_focus);
 #endif
-
-    return ret;
 }
 
 int camera_take_picture(struct camera_device * device)
@@ -574,7 +572,6 @@ int camera_device_open(const hw_module_t* module, const char* name,
     int cameraid;
     wrapper_camera_device_t* camera_device = NULL;
     camera_device_ops_t* camera_ops = NULL;
-    wasVideo = false;
 
     android::Mutex::Autolock lock(gCameraWrapperLock);
 
@@ -615,15 +612,13 @@ int camera_device_open(const hw_module_t* module, const char* name,
         camera_device->id = cameraid;
 
         rv = gVendorModule->common.methods->open(
-                (const hw_module_t*)gVendorModule, name,
-                (hw_device_t**)&(camera_device->vendor));
-        if (rv)
-        {
+            (const hw_module_t*)gVendorModule, name,
+            (hw_device_t**)&(camera_device->vendor));
+        if (rv){
             ALOGE("vendor camera open fail");
             goto fail;
         }
-        ALOGV("%s: got vendor camera device 0x%08X",
-                __FUNCTION__, (uintptr_t)(camera_device->vendor));
+        ALOGV("%s: got vendor camera device 0x%08X", __FUNCTION__, (uintptr_t)(camera_device->vendor));
 
         camera_ops = (camera_device_ops_t*)malloc(sizeof(*camera_ops));
         if(!camera_ops)
