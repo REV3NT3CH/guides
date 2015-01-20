@@ -1,0 +1,88 @@
+Step 1. Neccessary Packages
+First things we need to get are the neccessary Packages. To do so lets open Terminal and do the following:
+
+NOTE: Everytime a new terminal is opened and a sudo command is used it will ask for your password. It does this to grant your user account on Linux root or "su" permissions to modify or change system files which is needed for this setup (dont worry you will not mess anything up)
+
+Copy and paste each as instructed
+
+sudo apt-get install git-core gnupg flex bison gperf build-essential \
+  zip curl zlib1g-dev zlib1g-dev:i386 libc6-dev lib32ncurses5-dev lib32z1 \
+  lib32ncurses5 lib32bz2-1.0 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 \
+  lib32z1-dev libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos \
+  python-markdown libxml2-utils xsltproc readline-common libreadline6-dev libreadline6 \
+  lib32readline-gplv2-dev libncurses5-dev lib32readline5 lib32readline6 libreadline-dev \
+  libreadline6-dev:i386 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
+  lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools pngcrush schedtool libwxgtk2.8-dev python lzop
+
+(Press enter and let it finish up) Once done follow next step same method as before
+
+sudo ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
+
+(Press enter and let it finish up)
+
+You can now safely close out of this terminal
+
+Step 2. Java JDKs
+Now its time to install the correct Java JDK for deveolping android. To do so open a new Terminal and do the following:
+
+Copy and paste each as instructed
+
+sudo apt-get update
+
+(Press enter and let it finish up) Once done follow next step
+
+sudo apt-get install openjdk-7-jdk
+
+(Press enter and let it finish up) Once done follow next step
+
+Then update the default Java to the openjdk7 version in terminal with:
+
+sudo update-alternatives --config java
+
+(Press enter and choose openjdk7) then
+
+sudo update-alternatives --config javac
+
+(Press enter and choose openjdk7)
+
+it is also smart to install python. Get it by running this in terminal
+
+sudo apt-get install python
+
+(press enter)
+
+Step 3. Setup Paths
+Now its time to setup the proper Files and paths needed for repositories and building tools. Go back into home directory and right click and "create new folder". Weare are simply going to name this one "bin" with no quotation marks. now right click on that bin folder you just made and "Open as Root". It will ask for password. once it opens up right click inside it and select "Properties". Go to the "Permissions" tab. For Owner select your username and for folder access select "Create and delete files". For Group select your username and for folder access select "Create and delete files". You can now close out of "Properties" and the folder for bin that was opened as Root. Open up a new terminal and copy/paste the following:
+
+curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+(Press enter and let it finish up) Then next is
+
+chmod a+x ~/bin/repo
+(Press enter and let it finish up)
+
+Once this is done ensure there is a file inside your "bin" folder titled "repo". If its there then go back to the terminal and copy/paste the following:
+
+sudo nano ~/.bashrc
+(Press enter and it will open up the Gnu Nano screen) copy/paste the following:
+
+export PATH=${PATH}:~/bin
+once pasted in on your keyboard hit CTRL O and then press enter to save it. then hit CTRL X to exit out and it will return back to terminal screen.
+
+Step 4. Last One
+This is the very last step. In the Terminal copy/paste the following:
+
+sudo apt-get install git-core
+(Press enter and let it finish up) Then next is
+
+sudo apt-get update
+(Press enter and let it finish up)
+
+If you have an account on Github which will be needed if you are on my Team copy/paste the following (enter Username and Email without quotations):
+
+git config --global user.name "your git Username here"
+(Press enter)
+
+git config --global user.email "your email that your git is connected to here"
+(Press enter)
+
+Now you are all done with setup and are ready for building...each rom is different on how its initiated and built so be sure to look for instructions. they are generally found in the manifest or android repo on the Roms github.
