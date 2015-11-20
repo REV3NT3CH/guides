@@ -1,0 +1,40 @@
+Build Environment Setup for Arch Linux
+=========================================
+Credits & Thanks to Xanaxdroid for this guide
+
+
+Install the needed packages
+---------------------------
+yaourt -S git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip lib32-zlib lib32-ncurses lib32-readline gcc-libs-multilib gcc-multilib lib32-gcc-libs lib32-readline libtinfo optipng pngcrush pngquant 
+
+Setup repo and other stuff
+--------------------------
+mkdir ~/bin && curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo &&chmod a+x ~/bin/repo
+
+nano ~/.bashrc
+
+export PATH=~/bin:$PATH
+
+source ~/.bashrc
+
+To build using SaberMod toolchains
+----------------------------------
+yaourt -S sabermod-prebuilts
+
+
+To set up adb
+-------------
+yaourt -S android-tools android-udev
+
+Then run: gpasswd -a yourusername adbusers
+
+
+To build using Oracle Java
+--------------------------
+yaourt -S jdk
+
+Then run "archlinux-java status" to see which versions you have installed.
+
+Then run "sudo archlinux-java set java-8-jdk" to set java 8 as default
+
+Verify in a new terminal if it’s set correctly: “which java“, “which javac“, “java -version“, “javac -version“
