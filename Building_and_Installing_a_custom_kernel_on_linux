@@ -1,0 +1,48 @@
+1.) First download source and what branch you want which is found here: https://github.com/pfactum/pf-kernel
+    and extract it to /home directory
+
+    Note: to build with a custom toolchain do the following
+
+	Step 1.) download 5.2 chain from here http://sabermod.com/Toolchains%20%28DEV%20ONLY%29/x86_64/
+		 and extract it to /home directory
+	Step 2.) in kernels make change CROSS_COMPILE    ?= $(CONFIG_CROSS_COMPILE:"%"=%)
+		 to CROSS_COMPILE    := /home/rev3nt3ch/x86_64-linux-gnu-5.2/bin/x86_64-
+
+    Note 2: Change username (ex. rev3nt3ch) to match your own linux username as well as toolchain name (ex. x86_64-linux-gnu-5.2)
+            to whichever you downloaded. the above is just an example of how i do it.  
+
+2.) Open up a terminal in the directory of downloaded and extracted kernel and enter the following:
+
+    sudo apt-get install libssl-dev
+
+    and press enter
+
+    sudo cp /boot/config-$(uname -r) .config
+
+    and press enter
+
+3.) In same terminal run enter the following and select which configs you want:
+
+    make oldconfig
+
+    and press enter
+
+    (if you dont know what to select just press enter and it will select default for you)
+
+4.) Once that is completed enter the following in same terminal:
+
+    sudo time make -j13 deb-pkg
+
+    and press enter
+
+    (the -j13 flag is what jobs i have set because thats how many threads my cpu allows)
+
+5.) Once this is completed the .deb files created from the build will be placed one folder up from the kernels source directory.
+    With how i directed this setup they should be in the /home directory. Open a terminal cd'd into the directory they are all in
+    and enter the following:
+
+    sudo dpkg --force-all -i *.deb
+
+    and press enter
+
+6.)Thats it! now is the recommended time to reboot to bootup and enjoy the new kernel.
