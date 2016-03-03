@@ -3,10 +3,10 @@
 
     Note: to build with a custom toolchain do the following
 
-	Step 1.) download 5.2 chain from here http://sabermod.com/Toolchains%20%28DEV%20ONLY%29/x86_64/
+	Step 1.) download 5.2 chain from here: http://sabermod.com/Toolchains%20%28DEV%20ONLY%29/x86_64/
 		 and extract it to /home directory
-	Step 2.) in kernels make change CROSS_COMPILE    ?= $(CONFIG_CROSS_COMPILE:"%"=%)
-		 to CROSS_COMPILE    := /home/rev3nt3ch/x86_64-linux-gnu-5.2/bin/x86_64-
+	Step 2.) in kernels makefile change CROSS_COMPILE    ?= $(CONFIG_CROSS_COMPILE:"%"=%) to
+		 CROSS_COMPILE    := /home/rev3nt3ch/x86_64-linux-gnu-5.2/bin/x86_64-
 
     Note 2: Change username (ex. rev3nt3ch) to match your own linux username as well as toolchain name (ex. x86_64-linux-gnu-5.2)
             to whichever you downloaded. the above is just an example of how i do it.  
