@@ -1,5 +1,4 @@
-echo "export PATH=~/bin:$PATH
-export BLISS_BUILDTYPE=OFFICIAL
+echo "export BLISS_BUILDTYPE=OFFICIAL
 export CCACHE_DISABLE=1
 alias env='. build/envsetup.sh'
 alias repenv='. vendor/bliss/build/envsetup.sh'
