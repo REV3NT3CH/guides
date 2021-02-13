@@ -1,4 +1,4 @@
-export PATH=~/bin:$PATH
+echo "export PATH=~/bin:$PATH
 export BLISS_BUILDTYPE=OFFICIAL
 export CCACHE_DISABLE=1
 alias env='. build/envsetup.sh'
@@ -29,4 +29,4 @@ alias sync='repo sync -f --force-sync'
 alias mc='make clobber'
 alias pull='git pull'
 alias push='git push'
-alias gpf='git push --force'
+alias gpf='git push --force'" >> ~/.bashrc && source ~/.bashrc
